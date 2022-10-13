@@ -2,13 +2,32 @@ import "../styles/homePage.css";
 import "../styles/global.css";
 import "bootstrap/dist/css/bootstrap.css";
 import { Container, Navbar, Button } from "react-bootstrap";
-import { removeUserSession } from '../utils/session';
+import { getToken, getUserData, removeUserSession } from '../utils/session';
+import { useEffect, useState } from "react";
+import md5 from "md5";
 
 export default function HomePage() {
+  const [userData] = useState(JSON.parse(getUserData()));
+
   const handleLogout = () => {
     removeUserSession()
     window.location = '/';
   }
+
+  const checkToken = (login, password) => {
+    const token = getToken();
+    const tokenMd5 = md5(login + password);
+    console.log('md5: ' + tokenMd5);
+    console.log(token )
+    if(token === tokenMd5) return true;
+    return false;
+  }
+
+  useEffect(() => {
+    if(!checkToken(userData.Login, userData.Password)){
+      handleLogout();
+    }
+  }, [])
 
   return (
     <div className="app-main">
@@ -21,21 +40,11 @@ export default function HomePage() {
               <Button variant="success" onClick={handleLogout}>Wyloguj</Button>
             </Container>
           </Navbar>
-          <div>
-            Dane użytkownika:
+          <div className="">
+            Dane użytkownika: {userData.Name} {userData.Surname}
           </div>
         </div>
       </div>
     </div>
   );
 }
-
-// import "bootstrap/dist/css/bootstrap.css";
-
-// export default function HomePage() {
-//   return (
-//     <div>
-//       HomePage
-//     </div>
-//   );
-// }
